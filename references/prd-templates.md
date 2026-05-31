@@ -1,6 +1,8 @@
 # PRD File Templates
 
-These are the exact templates for each of the 8 PRD output files. Fill in all placeholders based on the discovery conversation. Remove sections that genuinely don't apply — but only if they truly don't apply, not because the information is unknown.
+These are the exact templates for each of the 8 PRD output files. Fill in all placeholders based on the discovery conversation.
+
+**Context-aware guidance:** Remove or mark N/A any section that genuinely does not apply. Do not include a section just because the template has it. The goal is a useful document, not a complete template. When in doubt: less is more.
 
 ---
 
@@ -39,11 +41,20 @@ What this product explicitly will NOT do:
 
 ## Stakeholders
 
+<!--
+For team projects, list each role with the person or team responsible.
+For solo or open source projects, simplify: list just yourself as owner and remove rows that don't apply.
+Example for solo project:
+| Role | Responsibility |
+|------|----------------|
+| Owner | [Your name] — all decisions |
+-->
+
 | Role | Name/Team | Responsibility |
 |------|-----------|----------------|
 | Product Owner | [Name] | Final decisions on scope |
-| Engineering Lead | [Name/TBD] | Technical feasibility |
-| Design | [Name/TBD] | UX/UI |
+| Engineering Lead | [Name/TBD or N/A] | Technical feasibility |
+| Design | [Name/TBD or N/A — e.g., "N/A — CLI tool"] | UX/UI |
 
 ## Related Documents
 
@@ -186,11 +197,15 @@ What this product explicitly will NOT do:
 - [ ] [Criterion 2]
 - [ ] [Criterion 3]
 
-**Edge Cases:**
+<!-- Edge Cases and Out of Scope are optional.
+     Include them for complex stories where failure modes matter.
+     Omit them for straightforward CRUD operations to keep the document lean. -->
+
+**Edge Cases** *(include only for non-trivial stories):*
 - [Edge case 1 — what happens when...]
 - [Edge case 2]
 
-**Out of Scope for this Story:**
+**Out of Scope for this Story** *(include only when the boundary is non-obvious):*
 - [What this story does NOT cover]
 
 ---
@@ -217,7 +232,7 @@ What this product explicitly will NOT do:
 
 | Attribute | Value |
 |-----------|-------|
-| Platform | [Web / iOS / Android / Desktop / API] |
+| Platform | [Web / iOS / Android / Desktop / CLI / API] |
 | Supported browsers/OS | [e.g., Chrome 100+, Safari 15+, iOS 15+] |
 | Deployment | [Cloud provider / self-hosted / TBD] |
 | Tech stack | [Frontend / Backend / DB — or TBD if not decided] |
@@ -239,13 +254,22 @@ These are behaviors the system must perform.
 
 These are quality attributes the system must have.
 
+<!--
+Only include NFRs that are genuinely relevant to this context:
+- WCAG accessibility: relevant for web and mobile apps used by the public; skip for CLI tools, server-side APIs, and internal developer tools
+- 99.9% uptime: relevant for consumer-facing products and critical infrastructure; may be overkill for internal tools with <500 users
+- OWASP Top 10: relevant for any product handling user auth, payment, or sensitive data; less relevant for read-only public tools
+- Scalability targets: base on actual usage projections, not generic maximums
+Remove rows that don't apply — a half-relevant NFR is worse than no NFR.
+-->
+
 | ID | Attribute | Requirement | Rationale |
 |----|-----------|-------------|-----------|
-| NFR1 | Performance | [e.g., page load < 2s on 4G] | [Why this matters] |
-| NFR2 | Availability | [e.g., 99.9% uptime] | |
-| NFR3 | Security | [e.g., OWASP Top 10 compliance] | |
-| NFR4 | Scalability | [e.g., support 10k concurrent users] | |
-| NFR5 | Accessibility | [e.g., WCAG 2.1 AA] | |
+| NFR1 | Performance | [e.g., page load < 2s on 4G] | [Why this matters for this product] |
+| NFR2 | Availability | [e.g., 99.5% uptime — calibrate to actual user expectations] | |
+| NFR3 | Security | [e.g., OWASP Top 10 — if handling auth/payments/PII] | |
+| NFR4 | Scalability | [e.g., support N concurrent users — based on realistic projections] | |
+| NFR5 | Accessibility | [e.g., WCAG 2.1 AA — for public-facing web/mobile; N/A for CLI] | |
 
 ---
 
@@ -262,7 +286,7 @@ These are quality attributes the system must have.
 - **Data stored:** [What user data is persisted?]
 - **Data sensitivity:** [PII? Payment data? Health data?]
 - **Retention policy:** [How long is data kept?]
-- **Compliance:** [GDPR, HIPAA, SOC2, etc. — if applicable]
+- **Compliance:** [GDPR, HIPAA, SOC2, etc. — if applicable; omit if not relevant]
 
 ---
 
@@ -344,8 +368,22 @@ Measure business impact.
 ```markdown
 # [Product Name] — Timeline & Milestones
 
+<!--
+Choose the timeline structure that fits your context:
+
+A) New product (default): Discovery → Alpha → Beta → Launch
+B) Feature addition to an existing product: Scoping → Build → Release
+C) Improvement/redesign of an existing flow: Audit → Design → Build → Measure
+D) Open source / solo project: Prototype → v0.1 → v1.0
+
+Replace the structure below with whichever fits. "Alpha" and "Beta" are meaningful
+only when there are distinct internal and external testing stages — skip them for
+feature additions, small teams, or open source projects without a traditional beta.
+-->
+
 ## Overview
 
+<!-- Example for a new product (adapt for other contexts): -->
 | Phase | Description | Duration | Target Date |
 |-------|-------------|----------|-------------|
 | Discovery | Requirements finalized, designs started | [X weeks] | [Date] |
@@ -353,51 +391,42 @@ Measure business impact.
 | Beta | All P1 features, limited external users | [X weeks] | [Date] |
 | Launch | Public release | — | [Date] |
 
----
-
-## Phase 1: Discovery & Design
-
-**Goal:** Finalize requirements and produce design mockups for all P0 features.
-
-**Deliverables:**
-- [ ] PRD signed off by stakeholders
-- [ ] Wireframes for all P0 flows
-- [ ] Tech stack decided
-- [ ] Database schema designed
+<!-- Example for a feature addition:
+| Phase | Description | Duration | Target Date |
+|-------|-------------|----------|-------------|
+| Scoping | Requirements and design finalized | [X weeks] | [Date] |
+| Build | Feature implemented and tested | [X weeks] | [Date] |
+| Release | Staged rollout to production | [X weeks] | [Date] |
+-->
 
 ---
 
-## Phase 2: Alpha (Internal)
+## Phase 1: [Phase Name]
 
-**Goal:** Working product with all P0 features for internal testing.
+**Goal:** [What this phase must accomplish]
 
 **Deliverables:**
-- [ ] [Feature F1] built and tested
-- [ ] [Feature F2] built and tested
-- [ ] Basic error handling and logging
+- [ ] [Deliverable 1]
+- [ ] [Deliverable 2]
 
 ---
 
-## Phase 3: Beta (Limited External)
+## Phase 2: [Phase Name]
 
-**Goal:** P0 + P1 features, with real users providing feedback.
+**Goal:** [What this phase must accomplish]
 
 **Deliverables:**
-- [ ] [Feature F3] built and tested
-- [ ] Analytics instrumented
-- [ ] Performance targets met
+- [ ] [Feature or milestone 1]
+- [ ] [Feature or milestone 2]
 
 ---
 
-## Phase 4: Launch
+## Phase 3: [Phase Name] *(if applicable)*
 
-**Goal:** Public release with monitoring in place.
+**Goal:** [What this phase must accomplish]
 
 **Deliverables:**
-- [ ] All P0 and prioritized P1 features shipped
-- [ ] Documentation published
-- [ ] On-call runbook created
-- [ ] Launch announcement ready
+- [ ] [Deliverable 1]
 
 ---
 
