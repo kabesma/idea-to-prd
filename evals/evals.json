@@ -1,0 +1,108 @@
+{
+  "skill_name": "idea-to-prd",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to build a personal finance management app for freelancers. Can you help me write a PRD for it?",
+      "expected_output": "Skill enters Phase 1, asks max 2 high-level questions. Does NOT generate any PRD yet.",
+      "files": [],
+      "expectations": [
+        "Asks questions before producing any PRD content",
+        "Asks no more than 3 questions in the first response",
+        "Questions probe the problem and target user",
+        "No PRD files or sections are generated in the first response"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I have an idea for a SaaS tool that helps remote teams run better async standups. Teams are tired of daily video calls but still need accountability. The tool would let people post short video updates (max 2 min), tag blockers, and managers can see team health at a glance. We're a 3-person team, want to launch in 4 months, targeting companies with 20-200 employees.",
+      "expected_output": "Skill skips basic Phase 1 since context is rich, jumps to targeted Phase 2 questions on missing dimensions, eventually produces alignment summary, then generates all 8 PRD files.",
+      "files": [],
+      "expectations": [
+        "Skill does not restart from Phase 1 with basic 'what problem does this solve' questions",
+        "Alignment summary is shown before any PRD file is generated",
+        "All 8 PRD files are generated (00-overview through 07-risks)",
+        "Feature priority matrix uses P0/P1/P2 labels",
+        "User stories have acceptance criteria",
+        "04-technical.md distinguishes functional from non-functional requirements"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Write a PRD for a push notification feature in our e-commerce app. It should cover order status updates, promotions, and product restocks.",
+      "expected_output": "Skill scopes this as a feature PRD not a full product, asks about existing system context, generates appropriately scoped PRD with out-of-scope section.",
+      "files": [],
+      "expectations": [
+        "Skill recognizes this is a feature addition, not a new product",
+        "Discovery questions include existing tech stack and infrastructure",
+        "Alignment summary lists 3 notification types (order, promos, restocks)",
+        "PRD is scoped to the feature, not an entire e-commerce rebuild",
+        "07-risks.md contains an Out of Scope section"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I want to make an app.",
+      "expected_output": "Skill handles an extremely vague input gracefully — asks opening questions to understand what kind of app, what problem it solves, and who uses it. Does not panic or produce a generic PRD.",
+      "files": [],
+      "expectations": [
+        "Skill does not generate a PRD immediately from this vague input",
+        "Skill asks clarifying questions to understand the domain",
+        "Tone is encouraging and exploratory, not dismissive",
+        "Response asks no more than 3 questions"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "We need a PRD for an internal HR tool that lets employees submit time-off requests and managers approve them. Currently everything is done over Slack DMs and spreadsheets. We have about 150 employees, our tech team is 4 engineers, and we use Google Workspace for everything.",
+      "expected_output": "Skill identifies this as an internal tool, uses the provided context well, asks focused questions about workflows and edge cases, generates a scoped PRD that doesn't over-engineer. Integration with Google Workspace should appear in the technical file.",
+      "files": [],
+      "expectations": [
+        "Discovery questions address edge cases like partial-day requests, overlapping leave, approval chains",
+        "04-technical.md mentions Google Workspace integration",
+        "PRD is appropriately scoped for a 4-engineer internal tool",
+        "Personas include both employee and manager",
+        "06-timeline.md reflects a realistic timeline for a small team"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Build a PRD for a marketplace where independent tutors can list their services and students can book sessions. Think Airbnb but for tutoring. Revenue model is 15% platform fee on each booking.",
+      "expected_output": "Skill handles a two-sided marketplace correctly — discovers both tutor and student personas, probes payment/trust/safety mechanics, generates PRD with both user types clearly separated in personas and user stories.",
+      "files": [],
+      "expectations": [
+        "01-personas.md contains both tutor and student personas",
+        "03-user-stories.md has stories for both user types",
+        "Discovery questions probe trust, safety, and payment handling",
+        "05-metrics.md includes marketplace-specific metrics (GMV, take rate, supply/demand balance)",
+        "07-risks.md addresses marketplace cold-start problem"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "I'm a developer and I want to create a developer tool — a CLI that watches your git commits and automatically generates a changelog entry using AI. Open source project, no monetization.",
+      "expected_output": "Skill adapts to a developer/CLI context. Discovery focuses on git workflow specifics, AI provider choice, config format. PRD is lean and technically precise since audience is developers.",
+      "files": [],
+      "expectations": [
+        "Discovery questions probe git hook approach, AI provider preference, config format",
+        "PRD is concise and technically oriented — not padded with business fluff",
+        "04-technical.md covers CLI design, AI API integration, and config schema",
+        "06-timeline.md is realistic for a solo open-source project",
+        "05-metrics.md reflects open-source success metrics (stars, downloads, contributors)"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "We want to redesign our onboarding flow. New users are dropping off after signup — our data shows 60% never complete profile setup. We think the form is too long and asks for things users don't understand yet.",
+      "expected_output": "Skill treats this as a feature/improvement PRD on an existing product. Discovery probes current onboarding steps, what data is actually needed at signup, and what 'complete' means. Does not over-scope into a full product rebuild.",
+      "files": [],
+      "expectations": [
+        "Skill frames this as an improvement to an existing flow, not a new product",
+        "Discovery questions ask about current onboarding steps and what data is required",
+        "03-user-stories.md focuses on the onboarding journey",
+        "05-metrics.md uses the 60% drop-off as baseline and sets a target improvement",
+        "07-risks.md lists assumptions about why users are dropping off"
+      ]
+    }
+  ]
+}
