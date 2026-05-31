@@ -1,6 +1,14 @@
 # PRD File Templates
 
-These are the exact templates for each of the 8 PRD output files. Fill in all placeholders based on the discovery conversation.
+Templates for the PRD output files. Fill in all placeholders based on the discovery conversation.
+
+**File count depends on product class (see `product-classes.md`):**
+- **Market-facing** product → the full **nine files**: `00-overview, 01-personas, 02-features, 03-user-stories, 04-technical, 05-metrics, 06-timeline, 07-risks, 08-gtm`. `08-gtm.md` is highest-numbered and written last.
+- **Internal / infrastructure / research** product → **eight or fewer** — generate `00`–`07` as relevant and **omit `08-gtm.md`** (no external market).
+- **Feature addition / small improvement** → a focused subset (typically `00, 02, 03, 04`).
+- **Complex / multi-module system** → the decomposition output at the end of this file (top-level set + `dependency-map.md` + per-module sub-PRDs), not a flat file list.
+
+The templates below are ordered by file number (`00`→`08`).
 
 **Context-aware guidance:** Remove or mark N/A any section that genuinely does not apply. Do not include a section just because the template has it. The goal is a useful document, not a complete template. When in doubt: less is more.
 
@@ -58,6 +66,8 @@ Example for solo project:
 
 ## Related Documents
 
+<!-- List only the files you actually generate for this product's class. Include 08-gtm.md only for market-facing products. For multi-module systems, link dependency-map.md and the modules/ directory instead. -->
+
 - [01-personas.md](01-personas.md)
 - [02-features.md](02-features.md)
 - [03-user-stories.md](03-user-stories.md)
@@ -65,6 +75,7 @@ Example for solo project:
 - [05-metrics.md](05-metrics.md)
 - [06-timeline.md](06-timeline.md)
 - [07-risks.md](07-risks.md)
+- [08-gtm.md](08-gtm.md) <!-- market-facing products only -->
 ```
 
 ---
@@ -292,6 +303,24 @@ Remove rows that don't apply — a half-relevant NFR is worse than no NFR.
 
 ---
 
+## Privacy by Design
+
+<!--
+REQUIRED whenever the product stores any personal data (PII/PHI/financial). Treat privacy as a
+design decision that shapes schema and API surface — not a compliance checkbox. Skip ONLY if no
+personal data is involved (e.g., a stateless CLI, a public read-only tool).
+-->
+
+| Concern | Decision | Schema / API impact |
+|---------|----------|---------------------|
+| **Data minimization** | [Which fields does each feature actually need? Drop anything collected "just in case".] | [e.g., no `date_of_birth` column unless a feature requires age gating] |
+| **Consent / lawful basis** | [How is consent captured? What's the lawful basis per data category?] | [e.g., `consent_log` table; consent checked at API boundary] |
+| **Retention & deletion** | [Per-category retention; what triggers deletion?] | [e.g., soft-delete + purge job; cascade rules] |
+| **Subject access / erasure (DSAR)** | [How does a user export or delete their data? SLA?] | [e.g., `/account/export`, `/account/delete` endpoints; how related records are handled] |
+| **Access control** | [Who/what can read each sensitive field? PII isolation?] | [e.g., column-level restriction, separate PII store, audit on read] |
+
+---
+
 ## Technical Assumptions & Open Questions
 
 - [ ] **[Open question 1]** — [What needs to be decided before engineering starts]
@@ -439,7 +468,62 @@ feature additions, small teams, or open source projects without a traditional be
 
 ---
 
+## 07-risks.md
+
+```markdown
+# [Product Name] — Risks, Assumptions & Out of Scope
+
+## Risk Register
+
+| # | Risk | Likelihood | Impact | Mitigation |
+|---|------|-----------|--------|------------|
+| R1 | [Risk description] | High / Med / Low | High / Med / Low | [How to reduce or respond] |
+| R2 | | | | |
+
+---
+
+## Key Assumptions
+
+These are things we believe to be true but have not fully validated. Each assumption is a risk if wrong.
+
+| # | Assumption | Validation Plan |
+|---|-----------|----------------|
+| A1 | [We assume that users will X] | [User interviews / A-B test / survey] |
+| A2 | [We assume the tech stack can handle Y] | [Spike / proof of concept] |
+
+---
+
+## Dependencies
+
+| Dependency | Owner | Risk if Blocked |
+|-----------|-------|----------------|
+| [External API / team / decision] | [Who owns it] | [What breaks if this is delayed] |
+
+---
+
+## Out of Scope
+
+These items were explicitly excluded from V1. They may be revisited in future versions.
+
+| Item | Reason for Exclusion | Future Version? |
+|------|---------------------|----------------|
+| [Feature/capability] | [Too complex / low priority / separate product] | V2 / TBD / No |
+
+---
+
+## Open Questions
+
+These must be answered before engineering begins.
+
+- [ ] **[Question 1]** — Owner: [Name/TBD] — Due: [Date]
+- [ ] **[Question 2]** — Owner: [Name/TBD] — Due: [Date]
+```
+
+---
+
 ## 08-gtm.md
+
+> **Generate this file for MARKET-FACING products only.** Omit it for internal tools, infrastructure/migration projects, and research spikes — they have no external market, so a go-to-market file is noise. See `product-classes.md`.
 
 ```markdown
 # [Product Name] — Go-to-Market
@@ -447,10 +531,10 @@ feature additions, small teams, or open source projects without a traditional be
 > **Version:** 1.0 | **Date:** [YYYY-MM-DD] | **Status:** Draft
 
 <!--
-Always generate this file for new products. GTM is frequently the most important thing
+Generate for market-facing products. GTM is frequently the most important thing
 engineering teams skip, and one of the most common reasons a technically sound product
 fails to reach users. Remove or mark N/A only sections that genuinely do not apply
-(e.g., Pricing for open source / internal tools with no commercial model).
+(e.g., Pricing for open source with no commercial model).
 -->
 
 ## Target Segment
@@ -537,53 +621,70 @@ For commercial products, always include at least a hypothesis — "free + paid t
 
 ---
 
-## 07-risks.md
+# Multi-module output (complex / multi-module systems)
+
+When the system is **complex / multi-module** (Decomposition mode in `SKILL.md`), do **not** produce nine flat files. Produce a top-level set plus one sub-PRD per module:
+
+```
+prd/
+├── 00-overview.md          # whole-system problem, goals, module list
+├── dependency-map.md       # the module dependency graph (below)
+├── 07-risks.md             # system-level risks (cross-module)
+├── 08-gtm.md               # ONLY if the system is market-facing
+└── modules/
+    ├── <module-a>/
+    │   ├── overview.md      # this module's purpose, actors, boundary
+    │   ├── features.md      # P0/P1/P2 for this module
+    │   ├── user-stories.md  # stories + acceptance criteria
+    │   └── technical.md     # FR/NFR, data, integrations, privacy-by-design
+    ├── <module-b>/
+    └── ...
+```
+
+Keep module identifiers stable and English-standard so a downstream schema or blueprint pass can consume each module cleanly.
+
+## dependency-map.md
 
 ```markdown
-# [Product Name] — Risks, Assumptions & Out of Scope
+# [System Name] — Module Dependency Map
 
-## Risk Register
+## Modules
 
-| # | Risk | Likelihood | Impact | Mitigation |
-|---|------|-----------|--------|------------|
-| R1 | [Risk description] | High / Med / Low | High / Med / Low | [How to reduce or respond] |
-| R2 | | | | |
+| Module | Purpose | Depends on | Depended on by | Discovery order |
+|--------|---------|-----------|----------------|-----------------|
+| [chart-of-accounts] | [Foundational ledger structure] | — | [accounting, reporting] | 1 (foundational) |
+| [accounting] | [Journals, GL] | [chart-of-accounts] | [reporting, ap, ar] | 2 |
+| [inventory] | [Stock levels] | [products] | [sales-orders] | 2 |
+| [sales-orders] | [Order capture] | [inventory, customers] | [invoicing] | 3 |
 
----
+## Dependency graph
 
-## Key Assumptions
-
-These are things we believe to be true but have not fully validated. Each assumption is a risk if wrong.
-
-| # | Assumption | Validation Plan |
-|---|-----------|----------------|
-| A1 | [We assume that users will X] | [User interviews / A-B test / survey] |
-| A2 | [We assume the tech stack can handle Y] | [Spike / proof of concept] |
-
----
-
-## Dependencies
-
-| Dependency | Owner | Risk if Blocked |
-|-----------|-------|----------------|
-| [External API / team / decision] | [Who owns it] | [What breaks if this is delayed] |
-
----
-
-## Out of Scope
-
-These items were explicitly excluded from V1. They may be revisited in future versions.
-
-| Item | Reason for Exclusion | Future Version? |
-|------|---------------------|----------------|
-| [Feature/capability] | [Too complex / low priority / separate product] | V2 / TBD / No |
-
----
-
-## Open Questions
-
-These must be answered before engineering begins.
-
-- [ ] **[Question 1]** — Owner: [Name/TBD] — Due: [Date]
-- [ ] **[Question 2]** — Owner: [Name/TBD] — Due: [Date]
 ```
+chart-of-accounts ──> accounting ──> reporting
+products ──> inventory ──> sales-orders ──> invoicing
+customers ─────────────────^
+```
+
+## Build sequencing rationale
+
+- **Foundational first:** [modules many others depend on — build/spec these before dependents]
+- **Cross-module decisions:** [shared identifiers, shared auth, shared currency/locale handling — decided once, applied everywhere]
+- **Cross-module risks:** [what breaks across modules if a shared assumption is wrong]
+```
+
+## modules/<module>/overview.md
+
+```markdown
+# [Module Name]
+
+**Purpose:** [What this module is responsible for — one paragraph]
+**Boundary:** [What is explicitly NOT this module's job — pushes to which other module]
+**Actors:** [Who/what uses this module]
+
+**Upstream dependencies:** [Modules/data this needs to function]
+**Downstream consumers:** [Modules that depend on this one]
+
+**Cross-module contracts:** [Shared entities, events, or APIs this module exposes or consumes]
+```
+
+(The per-module `features.md`, `user-stories.md`, and `technical.md` follow the same structure as the standalone `02`/`03`/`04` templates above, scoped to the single module. The cross-file consistency pass — Phase 4.5 — runs across the whole module set: every cross-module dependency in the map must appear in the depending module's `technical.md`.)

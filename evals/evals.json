@@ -1,6 +1,6 @@
 {
   "skill_name": "idea-to-prd",
-  "eval_note": "These evals measure structural correctness — whether the skill follows its phases, avoids anti-patterns, and produces well-formed output. They do not measure latency or token cost. Single-turn evals (id 1–8) test the skill's first response. Multi-turn evals (id 9–13) test adversarial mid-conversation scenarios.",
+  "eval_note": "These evals measure behavioral correctness — whether the skill follows its phases, classifies the product correctly, reasons critically (not by script), decomposes large systems, avoids anti-patterns, and produces consistent output. Evals 1–20 cover discovery flow, domain detection, and conversation-dynamics adversarial cases. Evals 21–30 are the harder set added to address known gaps: non-market product classes (internal/infra/research) where market lenses must be OFF, multi-module decomposition, GENERATIVE critique of claims not named anywhere in the skill, factual correction, conceding to a valid rebuttal, the shelf ('don't build this') recommendation, and the cross-file consistency pass. Several evals in 21–30 are explicitly FAIL-CAPABLE: there is a specific wrong behavior that constitutes a failure, so a 'no failures' result is meaningful only if these are actually exercised against the live skill. A suite where nothing can fail proves nothing.",
   "evals": [
     {
       "id": 1,
@@ -396,6 +396,260 @@
         "Skill asks what remains if a frontier model offers equivalent writing capability for free",
         "Skill asks about the actual moat — workflow integration, proprietary data, brand, or distribution",
         "Skill addresses the crowded competitive landscape (Jasper, Copy.ai, HubSpot AI, etc.) and asks why marketing teams would choose this product instead"
+      ]
+    },
+    {
+      "id": 21,
+      "scenario": "multi-turn",
+      "fail_capable": true,
+      "description": "Internal tool (non-market class). Skill must NOT apply market lenses — no moat, CAC/LTV, GTM, or 'competitors'. It must use internal gates (adoption vs. workaround, build-vs-buy, maintenance owner) and omit 08-gtm.md.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "We need an internal tool for our finance team to track and approve vendor invoices. Right now they juggle a shared spreadsheet and email threads, things get lost, and approvals take days. About 12 finance staff would use it. We have 3 engineers."
+        }
+      ],
+      "expected_output": "Skill classifies this as an INTERNAL TOOL (used by own employees, no external market). Discovery focuses on the current spreadsheet/email workaround and exactly what breaks, build-vs-buy versus an off-the-shelf AP tool, who maintains it long-term, approval-chain edge cases, and integration with internal finance systems. The skill must NOT ask about competitive moat, CAC/LTV, go-to-market, acquisition, or market-style 'kill criteria'. If/when PRD files are generated, 08-gtm.md is omitted.",
+      "fail_conditions": [
+        "Skill asks about competitive moat, competitors, CAC/LTV, go-to-market, or acquisition for this internal tool",
+        "Skill demands market-style 'kill criteria' (when would you kill the product / what's your differentiation) framed as market success",
+        "Skill generates or promises an 08-gtm.md for this internal tool"
+      ],
+      "expectations": [
+        "Skill explicitly recognizes this as an internal tool, not a market-facing product",
+        "Discovery probes the current workaround and what specifically breaks at current scale",
+        "Discovery raises build-vs-buy (why build vs. an off-the-shelf AP/invoice tool)",
+        "Discovery raises maintenance ownership and/or internal rollout/adoption",
+        "Skill does NOT ask about moat, CAC/LTV, competitors, or go-to-market",
+        "If PRD files are mentioned/generated, 08-gtm.md is omitted"
+      ]
+    },
+    {
+      "id": 22,
+      "scenario": "multi-turn",
+      "fail_capable": true,
+      "description": "Complex multi-module system (ERP-class). Skill must enter decomposition mode: map modules first, confirm the decomposition, establish dependency order, and NOT attempt flat single-pass discovery of the whole system.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "I want to build an ERP for small manufacturers. It needs accounting (general ledger, AP, AR), inventory management, purchasing, sales orders, production/work orders, and basic HR with payroll. It's an internal-style product we'll sell to manufacturers. This is a big one."
+        }
+      ],
+      "expected_output": "Skill recognizes this is a complex, multi-module system and enters decomposition mode. Instead of firing a flat discovery checklist across the whole ERP, it first enumerates the modules it heard (accounting/GL/AP/AR, inventory, purchasing, sales-orders, production/work-orders, HR/payroll), confirms the module list and asks what's missing or actually one thing, surfaces dependencies (e.g., accounting depends on a chart of accounts; sales-orders depend on inventory + customers), and proposes going module-by-module in dependency order. It states it will track state (e.g., a discovery/module-map artifact) rather than relying on memory. It does NOT try to cover all modules in one undifferentiated set of questions, and does NOT jump to generating a flat 9-file PRD.",
+      "fail_conditions": [
+        "Skill runs a single flat discovery checklist across the whole ERP as if it were one standard product",
+        "Skill proposes generating the standard flat 9-file PRD for the entire ERP without module decomposition",
+        "Skill ignores inter-module dependencies entirely"
+      ],
+      "expectations": [
+        "Skill explicitly identifies this as a complex / multi-module system",
+        "Skill enumerates the modules and asks the user to confirm/correct the decomposition before deep discovery",
+        "Skill surfaces at least one concrete inter-module dependency and proposes a dependency-ordered approach",
+        "Skill indicates it will track state across the long discovery (module map / discovery artifact), not rely on a mental checklist",
+        "Skill proposes module-structured output (per-module sub-PRDs + dependency map), not a flat 9-file set"
+      ]
+    },
+    {
+      "id": 23,
+      "scenario": "multi-turn",
+      "fail_capable": true,
+      "description": "Generative critique of a claim that is NOT named anywhere in the skill. The skill must reconstruct the math and challenge the load-bearing number on its own — not stay silent because the assumption doesn't match a scripted pattern.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "It's a paid newsletter platform for niche B2B writers. Our financial plan is simple: there are about 200,000 such writers globally, we'll capture 25% of them in year one, and at $30/month that's $18M ARR in year one. The 25% capture is the key assumption."
+        }
+      ],
+      "expected_output": "The skill independently reconstructs the math and challenges the 25%-in-year-one capture as the load-bearing, almost-certainly-false assumption — even though 'TAM capture rate' is not one of the named scripted challenges in the skill. It should note that capturing 25% of a global market in year one is wildly outside any realistic benchmark (single-digit-percent penetration over many years is typical), that 25% of 200k at $30/mo only yields $18M if churn is ~zero and acquisition is instant/free, and ask what acquisition channel and conversion path could plausibly reach even 1% in year one. This is the anti-'critical theater' test: the weakest assumption is not on any checklist, and the skill must still attack it by reasoning.",
+      "fail_conditions": [
+        "Skill accepts the 25% year-one capture / $18M ARR without challenging it",
+        "Skill only asks generic discovery questions and never reconstructs or attacks the unrealistic number",
+        "Skill treats the financial plan as a settled input and proceeds toward alignment with it intact"
+      ],
+      "expectations": [
+        "Skill independently identifies the 25%-year-one-capture (and the $18M ARR derived from it) as the load-bearing, unrealistic assumption",
+        "Skill reconstructs the economics — penetration benchmark, churn, acquisition cost — rather than just asking an open question",
+        "Skill challenges this even though it is not one of the named scripted challenges (vanity metric, AI-washing, moat, conversion)",
+        "Tone is constructive and specific, not dismissive"
+      ]
+    },
+    {
+      "id": 24,
+      "scenario": "multi-turn",
+      "fail_capable": true,
+      "description": "Factual correction. The user states something factually wrong as a foundation of their plan. The skill must correct the fact with the reason — not just ask an empty question.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "We're building a WhatsApp-style messaging app for a region of 5 million people. Since WhatsApp is free, messaging has basically no infrastructure cost, so we can run the whole thing on a single cheap server and never charge users."
+        }
+      ],
+      "expected_output": "The skill explicitly corrects the false premise: 'free to the user' is not 'free to operate'. Messaging at the scale of millions of users incurs real and growing costs — media storage and egress bandwidth, push-notification delivery, presence/connection handling, and operational/on-call overhead — and cannot run on a single cheap server. It explains why the assumption is wrong (not merely asks 'have you considered costs?') and then steers toward how the service will actually be funded if it never charges users.",
+      "fail_conditions": [
+        "Skill accepts 'messaging has basically no infrastructure cost' / 'single cheap server' as true",
+        "Skill only asks an open-ended question about cost without stating that the premise is factually wrong",
+        "Skill proceeds as if the zero-cost assumption holds"
+      ],
+      "expectations": [
+        "Skill explicitly states the premise is incorrect — free-to-user is not free-to-operate",
+        "Skill gives concrete reasons (storage/egress, push delivery, connection/presence handling, ops) for why scale costs real money",
+        "Skill corrects the 'single cheap server' claim as unrealistic at millions of users",
+        "Skill then probes the actual funding/sustainability plan given no user charges"
+      ]
+    },
+    {
+      "id": 25,
+      "scenario": "multi-turn",
+      "fail_capable": true,
+      "description": "The user pushes back on the skill's challenge with a VALID, evidence-backed argument. The skill must concede and update its position — not stubbornly repeat the original objection. This tests that critique is reasoning, not a fixed posture.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "I'm building a premium habit-tracking app. Success metric: 100,000 downloads in year one."
+        },
+        {
+          "role": "assistant",
+          "content": "[Challenges 100,000 downloads as a vanity/acquisition metric and asks what retained usage looks like]"
+        },
+        {
+          "role": "user",
+          "content": "I hear you on vanity metrics, but downloads genuinely is the right target here and I have data: this is a one-time-purchase paid app at $15, no subscription, no in-app upsell. Revenue equals downloads times price. We already ran a 2,000-user paid beta with 4.6 stars and 70% still opening it at week 8, so retention is already validated. For this specific business model, paid downloads is the revenue metric, not a vanity metric."
+        }
+      ],
+      "expected_output": "The skill recognizes the rebuttal is valid: for a one-time-purchase paid app with already-validated retention, paid downloads genuinely is the revenue metric, not a vanity metric. It concedes explicitly ('fair — given the one-time-purchase model and your week-8 retention data, downloads is the revenue metric here, I'll drop that objection'), and proceeds. It does NOT keep insisting on a retention metric it has now been shown is already handled, and does NOT pretend it never raised the objection.",
+      "fail_conditions": [
+        "Skill keeps insisting downloads is a vanity metric after the user gave a valid model-specific reason and retention data",
+        "Skill ignores the week-8 retention evidence and re-asks for a retention metric",
+        "Skill is unable to update its position in response to a valid rebuttal"
+      ],
+      "expectations": [
+        "Skill explicitly concedes the point given the one-time-purchase model and the retention data",
+        "Skill stops pressing the vanity-metric objection once it has been validly rebutted",
+        "Skill acknowledges the week-8 retention evidence as addressing its original concern",
+        "Tone is graceful — it updates its view rather than defending the original challenge"
+      ]
+    },
+    {
+      "id": 26,
+      "scenario": "multi-turn",
+      "fail_capable": true,
+      "description": "Shelf recommendation. The honest read is that the idea should not be built as framed. The skill must say so plainly before writing any PRD, rather than dutifully documenting a doomed idea.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "I want to build a general-purpose web search engine to compete with Google. It'll be better because the results will be more relevant. Solo developer, no funding, 3-month timeline. Write me the PRD."
+        }
+      ],
+      "expected_output": "The skill does not jump into documentation. It gives an honest read first: a general-purpose web search engine competing with Google is not buildable by a solo developer in 3 months with no funding — web-scale crawling, indexing, ranking, spam-fighting, and serving infrastructure are multi-hundred-person, multi-billion-dollar undertakings, and 'more relevant results' is not a differentiator against the incumbent's data and distribution advantage. It recommends shelving or radically reframing (e.g., a vertical/niche search over a bounded corpus) before any PRD, and only continues if the user insists, noting the reservation.",
+      "fail_conditions": [
+        "Skill proceeds straight to discovery/alignment/PRD generation as if this were a viable plan",
+        "Skill never states that the idea is not buildable as framed",
+        "Skill produces a PRD for a solo 3-month Google competitor without a documented reservation"
+      ],
+      "expectations": [
+        "Skill gives an honest 'this should not be built as framed' read before writing any PRD",
+        "Skill gives concrete reasons (web-scale infra, incumbent data/distribution moat, solo/3-month/no-funding mismatch)",
+        "Skill offers a radically reframed alternative (e.g., bounded vertical search) rather than just refusing",
+        "If it continues at all, it does so only on the user's insistence and records the reservation"
+      ]
+    },
+    {
+      "id": 27,
+      "scenario": "multi-turn",
+      "fail_capable": true,
+      "description": "Infrastructure / migration class. Skill must use reliability/cutover/rollback/blast-radius lenses and must NOT apply GTM/moat/retention lenses.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "We need to migrate our monolith's user authentication off a legacy in-house system onto a new identity service. Every internal service depends on auth. We can't have downtime. 4 engineers."
+        }
+      ],
+      "expected_output": "Skill classifies this as an infrastructure/migration project. Discovery centers on the cutover strategy (big-bang vs. strangler-fig vs. dual-run), rollback plan, backward compatibility for existing service contracts, blast radius if auth fails, reliability/SLO expectations, and which consuming services migrate in what order. It does NOT ask about go-to-market, competitive moat, CAC/LTV, retention, or app-store strategy. If PRD files are generated, 08-gtm.md is omitted and 04-technical/07-risks carry the cutover and rollback detail.",
+      "fail_conditions": [
+        "Skill asks about go-to-market, moat, CAC/LTV, retention, or competitors for this migration",
+        "Skill generates or promises an 08-gtm.md",
+        "Skill ignores cutover/rollback/blast-radius and treats it like a market product"
+      ],
+      "expectations": [
+        "Skill identifies this as an infrastructure/migration project",
+        "Discovery covers cutover strategy and rollback plan",
+        "Discovery covers backward compatibility and/or blast radius across dependent services",
+        "Skill does NOT apply GTM/moat/retention lenses",
+        "If files are generated, 08-gtm.md is omitted"
+      ]
+    },
+    {
+      "id": 28,
+      "scenario": "multi-turn",
+      "fail_capable": true,
+      "description": "Research / experimental class. Skill must use hypothesis/cheapest-experiment lenses and produce lean output — not a full market PRD with retention funnels and GTM.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Before we commit, we want to test whether an LLM can reliably extract structured line-items from our suppliers' messy PDF invoices. It's a spike to decide if we build a real product around it. 2 engineers, a couple of weeks."
+        }
+      ],
+      "expected_output": "Skill classifies this as a research/experimental spike. It frames the work around a falsifiable hypothesis ('an LLM can extract line-items at X accuracy on our real invoices'), the decision the result informs (build the product vs. not), a success threshold, and whether this is the cheapest experiment that answers the question. It keeps output lean (overview with hypothesis + threshold, a spike plan, risks) and does NOT generate GTM, retention funnels, or an Alpha/Beta/Launch timeline.",
+      "fail_conditions": [
+        "Skill treats this as a market product and asks about GTM, moat, retention, or revenue",
+        "Skill generates a full 9-file market PRD with Alpha/Beta/Launch timeline and metrics funnel",
+        "Skill never frames a falsifiable hypothesis or success threshold"
+      ],
+      "expectations": [
+        "Skill identifies this as a research/experimental spike",
+        "Skill frames a falsifiable hypothesis and a success threshold",
+        "Skill asks what decision the result informs and whether this is the cheapest experiment",
+        "Output is lean — no GTM, no retention funnel, no Alpha/Beta/Launch timeline"
+      ]
+    },
+    {
+      "id": 29,
+      "scenario": "multi-turn",
+      "fail_capable": true,
+      "description": "Cross-file consistency pass. After full PRD generation, the skill must run Phase 4.5 and surface/fix cross-file inconsistencies — not just emit files and stop.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Build a PRD for an offline-first field-inspection app for utility crews. Inspectors work in areas with no signal and sync when they're back online. P0: capture inspections offline, photo attachments, sync when online, supervisor review dashboard. React Native, 3 engineers, 4 months."
+        },
+        {
+          "role": "assistant",
+          "content": "[Discovery, alignment summary covering offline-first capture, photo attachments, sync, supervisor dashboard; user confirms; PRD generated]"
+        },
+        {
+          "role": "user",
+          "content": "Looks good, go ahead and generate the files."
+        }
+      ],
+      "expected_output": "After generating the files, the skill runs an explicit cross-file consistency pass (Phase 4.5): every P0 feature has a user story and a functional requirement, every P0 feature is scheduled in the timeline, and — critically — the 'offline-first' decision forces a sync-conflict-resolution requirement, so 04-technical.md must contain an FR for conflict handling (not last-write-wins) marked P0. The skill should surface this consistency check explicitly and fix any gap it finds (e.g., add the missing conflict-resolution FR) rather than leaving a silent hole.",
+      "fail_conditions": [
+        "Skill emits the files and ends with no consistency/traceability check",
+        "Offline-first is chosen but no sync-conflict-resolution requirement appears anywhere and the skill never notices",
+        "Skill claims files are cross-referenced without any verification step"
+      ],
+      "expectations": [
+        "After generation, skill runs and shows an explicit cross-file consistency / traceability check",
+        "Check verifies P0 features trace to stories, FRs, and the timeline",
+        "Check catches that offline-first requires a sync-conflict-resolution FR (P0) in 04-technical.md and ensures it exists",
+        "Any inconsistency found is fixed (or surfaced as an open question), not left silent"
+      ]
+    },
+    {
+      "id": 30,
+      "scenario": "multi-turn",
+      "description": "State artifact for standard-size discovery. The skill should track state in a persisted discovery artifact rather than relying on a mental checklist.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "I want to build a B2B SaaS for managing freelance contractor onboarding — collecting tax forms, signing agreements, provisioning tool access, and tracking compliance. Mid-size companies. Several distinct flows. 4 engineers, 5 months."
+        }
+      ],
+      "expected_output": "This is a standard-size product with several distinct flows. The skill should indicate it is tracking discovery state in a persisted artifact (e.g., prd/_discovery.md) — confirmed facts, open questions, assumptions, and a decision log — rather than relying purely on memory, and proceed with class-appropriate (market-facing B2B SaaS) discovery.",
+      "expectations": [
+        "Skill indicates it will track state in a persisted discovery artifact (not a purely mental checklist)",
+        "Skill classifies it correctly as market-facing B2B SaaS (enterprise/B2B lenses apply)",
+        "Discovery distinguishes the several distinct flows rather than collapsing them",
+        "Skill caps questions at 3–4 per round despite the breadth"
       ]
     }
   ]

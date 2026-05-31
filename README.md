@@ -1,119 +1,118 @@
 # idea-to-prd
 
-A Claude Code skill that transforms any raw software idea into a complete, multi-file PRD through structured discovery questioning.
+A Claude Code skill that turns a raw software idea into a complete, multi-file PRD through structured discovery — and reasons critically about whether the idea holds up, instead of just documenting it.
 
 ## What it does
 
-Acts as a **Senior Product Manager** who asks the right questions first, achieves alignment, then generates a production-ready PRD split across focused files — so engineering teams get exactly what they need without under- or over-engineering.
+Acts as a **principal-level Product Manager** who:
 
-Specialized for **software engineering contexts**: web apps, APIs, mobile apps, SaaS platforms, CLIs, and internal tools.
+- **Adapts its lens to the product's class.** A viral consumer app and an internal accounting module are different jobs. Go-to-market, moat, and CAC/LTV apply to a market-facing product and are *actively wrong* for an internal tool, an infra migration, or a research spike — the skill turns those lenses off.
+- **Critiques by reasoning, not by script.** It reconstructs the user's numbers, names the load-bearing assumption, attacks the weakest one — even when that assumption isn't on any checklist — corrects false premises, and concedes when the user rebuts it with valid evidence.
+- **Handles real complexity.** For large multi-module systems (ERP-class), it maps modules and their dependencies first, then discovers module-by-module, tracking state in a file rather than a leaky mental checklist.
+- **Tells you when to stop.** If the honest read is "this shouldn't be built as framed," it says so before writing a single file.
+
+Specialized for **software engineering contexts**: web apps, APIs, mobile apps, SaaS, CLIs, developer tools, internal/enterprise systems, regulated platforms, and large multi-module systems.
+
+## Two axes set before any questions
+
+| Axis | What it decides |
+|------|-----------------|
+| **Product class** | Which lenses apply. Market-facing / Internal tool / Regulated / Infrastructure-or-migration / Research-or-experimental — each has its own discovery bank, its own "minimum to proceed" gate, and its own success definition. |
+| **Size & complexity** | Cadence and structure. Simple → lightweight. Standard → persisted state artifact. Complex/multi-module → decomposition mode (map modules + dependency graph before diving). |
+
+Full per-class playbooks live in `references/product-classes.md`.
 
 ## How it works
 
-The skill follows 6 phases before and after writing a PRD:
+The phases are a **state machine, not a one-way script** — any later phase can loop back to discovery when it exposes an earlier gap.
 
 | Phase | What happens |
 |-------|-------------|
-| **1 — Idea Intake** | Scans for already-answered context; asks only what's missing (max 2 questions) |
-| **2 — Discovery** | Dimension-driven questioning — covers users, features, tech, metrics, competitive context, and validation; adapts based on context-triggered pivots; detects product domain and auto-adds domain-specific questions; challenges weak assumptions directly |
-| **2.5 — Pre-Alignment Viability Check** | Mandatory gate before writing anything: surfaces kill criteria, competitive differentiation gaps, and unvalidated assumptions; fires adversarial challenges not yet covered in discovery |
-| **3 — Alignment Check** | Challenges weak metrics and over-scoped MVPs before presenting a one-page summary; waits for explicit confirmation |
-| **4 — PRD Generation** | Generates structured files scaled to scope — fewer for feature additions, 9 files (including GTM) for new products |
-| **5 — Post-PRD Critical Path** | Presents a Before Engineering Kickoff checklist: riskiest assumptions, technical spikes needed, decision gates, kill criteria, and suggested review chain |
+| **0a — Classify** | Determine product class → set which lenses are ON/OFF |
+| **0b — Size** | Simple / standard / complex → decide cadence, state artifact, decomposition |
+| **1 — Idea Intake** | Scan for already-answered context; ask only what's missing (max 2) |
+| **2 — Discovery** | Dimension-driven; class-specific + domain-specific questions; generative critique of claims; context-triggered pivots |
+| **2.5 — Viability** | Class-appropriate adversarial challenges; flags surfaced in the summary header, not footnotes |
+| **3 — Alignment** | Challenge weak metrics/scope, then a one-page summary; explicit preserve-vs-challenge rule; waits for confirmation |
+| **4 — Generation** | Files scaled to class and scope (GTM only for market-facing; module-structured output for complex systems) |
+| **4.5 — Consistency** | Traceability sweep across files (P0 ↔ story ↔ FR ↔ timeline; decision-log consequences honored) |
+| **5 — Critical Path** | Before-Engineering-Kickoff checklist: riskiest assumptions, spikes, decision gates, stop criteria |
+
+## Mechanisms (not slogans)
+
+- **State artifact** — `prd/_discovery.md` with a **decision → downstream-consequence log**. "Offline-first" is recorded as forcing "sync-conflict resolution = P0" and "no last-write-wins data model," and that constraint is carried into generation and verified in the consistency pass. This is how a trade-off survives 12 modules and 15 rounds.
+- **Generative critique** — a procedure: reconstruct the claim → name the load-bearing assumption → attack the weakest → correct facts → concede to valid rebuttals. The scripted challenges are *worked examples of the technique*, not the whole set.
+- **Decomposition mode** — module map + dependency graph + per-module sub-PRDs, so an ERP isn't flattened into 9 shapeless files. Output is stable per-module structure that downstream schema/blueprint tooling can consume.
+- **Cross-file consistency pass** — an actual verification step, so "cross-referenced" means something.
 
 ## Output
 
+**Market-facing product (standard):** nine files
+
 ```
 prd/
-├── 00-overview.md       # Executive summary, problem, goals
-├── 01-personas.md       # User personas, jobs-to-be-done
-├── 02-features.md       # Feature matrix with P0/P1/P2 priority
-├── 03-user-stories.md   # Stories with acceptance criteria
-├── 04-technical.md      # Functional vs non-functional requirements
-├── 05-metrics.md        # KPIs, north star metric, analytics events
-├── 06-timeline.md       # Phases, milestones, deliverables
-├── 07-risks.md          # Risks, assumptions, dependencies, out of scope
-└── 08-gtm.md            # Go-to-market: segment, positioning, distribution, pricing, moat
+├── 00-overview.md     ├── 03-user-stories.md   ├── 06-timeline.md
+├── 01-personas.md     ├── 04-technical.md      ├── 07-risks.md
+├── 02-features.md     ├── 05-metrics.md        └── 08-gtm.md   ← market-facing only
 ```
 
-`08-gtm.md` is generated for all new products. Feature additions and internal tools use a smaller subset.
+**Internal / infra / research product:** `00`–`07` as relevant, **no `08-gtm.md`**.
 
-## Domain Detection
+**Complex / multi-module system:** `00-overview.md`, `dependency-map.md`, `07-risks.md`, plus `prd/modules/<module>/` sub-PRDs.
 
-The skill detects product type and auto-adds domain-specific discovery questions:
+`04-technical.md` includes a **Privacy by Design** section (data minimization, consent, retention/DSAR, access control) whenever the product stores personal data.
 
-| Domain | Detected by |
-|--------|-------------|
-| Two-sided marketplace | Supply/demand split, platform fee model |
-| AI-native product | Model/provider references, AI as value prop |
-| Developer tool | CLI, SDK, API, IDE extension context |
-| Regulated industry | Health, finance, legal, education for minors |
-| B2B Enterprise SaaS | Enterprise buyers, SSO/procurement requirements |
-| IoT / Hardware + Software | Device lifecycle, offline behavior, connectivity |
-| Gaming | Core loop, retention, monetization model |
-| Content / Media Platform | Creator economics, content moderation |
-| B2C Mobile App | App store distribution, push notification flow |
+## Product classes
+
+| Class | Lenses ON | Lenses OFF |
+|-------|-----------|------------|
+| Market-facing | GTM, moat, CAC/LTV, acquisition, kill criteria, validation | — |
+| Internal tool | adoption vs. workaround, build-vs-buy, maintenance owner | GTM, moat, CAC/LTV, competitors |
+| Regulated | framework, liability, audit, data governance, privacy | GTM/moat unless also sold |
+| Infra / migration | reliability/SLO, cutover/rollback, blast radius | GTM, moat, retention |
+| Research / experimental | hypothesis, cheapest experiment, decision informed | GTM, moat, timeline-to-launch, revenue |
+
+## Domain detection (orthogonal to class)
+
+Two-sided marketplace · AI-native · developer tool · B2B Enterprise SaaS · IoT/Hardware · gaming · content/media · B2C mobile — each auto-adds specialized questions, stacking on top of any class.
 
 ## Evals
 
-20 test cases covering:
+30 cases (`evals/evals.json`), 9 of them **fail-capable** (they define a specific wrong behavior that counts as a failure). Coverage:
 
-- **Happy path** (evals 1–8): vague input, rich context, feature addition, internal tool, two-sided marketplace, developer CLI, onboarding redesign
-- **Adversarial — conversation dynamics** (evals 9–13): user refuses to answer questions, contradictory information, mid-conversation language switch, disagreement with alignment summary, post-PRD revision from engineering feedback
-- **Adversarial — output quality** (evals 14–17): vanity metric challenge, marketplace domain detection, post-PRD critical path output, scope/team/timeline mismatch
-- **New behaviors** (evals 18–20): B2B Enterprise domain detection, kill criteria gate, AI-native premise challenge
+- **Discovery & domain (1–8, 14–20):** scoping, rich context, feature additions, marketplace/B2B/AI detection, vanity-metric and scope-mismatch challenges
+- **Conversation dynamics (9–13):** refusal, contradiction, language switch, alignment disagreement, post-PRD revision
+- **Hard set (21–30):** internal/infra/research classes with market lenses off, multi-module decomposition, generative critique of an unlisted claim, factual correction, conceding to a valid rebuttal, the "don't build this" recommendation, the consistency pass, and state-artifact usage
 
-Key behaviors validated over baseline:
-
-- Skips Phase 1 questions when the user's initial message already answers them
-- Never re-asks questions the user already answered
-- Preserves the user's exact metric framing (does not reframe "60% drop-off" as "40% completion")
-- Enforces Phase 2.5 viability check — kill criteria must be answered or flagged before alignment summary
-- Challenges weak competitive moats, AI-as-differentiator claims, and assumed conversion rates
-- Responds to context-triggered pivots (paying customers, fundraising, named competitors, hard deadlines)
-- Enforces alignment check before writing — baseline skips this
-- Scales file count to scope — feature additions use 4–5 files, new products use all 9
-- Caps questions at 3–4 per round — baseline fires 5+ at once
-- Consistently includes acceptance criteria (Given/When/Then), out-of-scope section, and FR/NFR distinction
-- Adapts templates to context: removes WCAG for CLI tools, adapts timeline for feature additions
-- Challenges vanity metrics before accepting them into the PRD
-- Flags scope/team/timeline mismatches explicitly
-- Generates 08-gtm.md for all new products
+See `evals/eval-status.md` for an honest account of methodology and **why the previous "0 failures" result was discarded** (circular self-grading, no failure possible, deferred-as-pass inflation). A suite where nothing can fail proves nothing.
 
 ## Installation
 
-Install via Claude Code:
+Place the skill directory at `~/.claude/skills/idea-to-prd/`, or install via Claude Code:
 
 ```bash
 /install-skill https://github.com/kabesma/idea-to-prd
 ```
 
-Or place the `SKILL.md` file in your Claude skills directory (`~/.claude/skills/idea-to-prd/`).
+## Triggering
 
-## Triggering the skill
+Say things like: `"I want to build [something]"`, `"write a PRD for [feature/product]"`, `"help me write a PRD"`, `"I have an idea for an app"`, `"we need a feature for X"`.
 
-Say any of the following:
-
-- `"I want to build [something]"`
-- `"Write a PRD for [feature/product]"`
-- `"Help me write a PRD"`
-- `"I have an idea for an app"`
-- `"We need a feature for X"`
-
-**Does not trigger for:** architecture discussions, critiquing an existing PRD, implementation requests, or narrow technical questions.
+**Does not trigger for:** architecture discussions without a deliverable, critiquing an existing PRD, implementation requests, or narrow technical questions.
 
 ## Language support
 
-The skill itself is written in English, but **automatically adapts to the user's language** at runtime. Write in Indonesian and the entire conversation and PRD output will be in Indonesian. Language can switch mid-conversation and the skill will follow. Code-switching messages follow the dominant language; technical terms (API, SDK, P0) may stay in English regardless of conversation language.
+Written in English, but **adapts to the user's language at runtime** — conversation, PRD files, and the state artifact. Switches mid-conversation if the user does. Code-switching follows the dominant language; technical terms (API, SDK, P0, FR/NFR) may stay in English.
 
 ## File structure
 
 ```
 idea-to-prd/
-├── SKILL.md                     # Skill instructions
+├── SKILL.md                       # Skill instructions
 ├── references/
-│   └── prd-templates.md         # Templates for all 9 PRD files (including 08-gtm.md)
+│   ├── prd-templates.md           # Templates for all files + multi-module output
+│   └── product-classes.md         # Per-class lenses, question banks, gates
 └── evals/
-    ├── evals.json               # 20 test cases (8 happy path + 12 adversarial)
-    └── eval-results-2026-06-01.md
+    ├── evals.json                 # 30 test cases (9 fail-capable)
+    └── eval-status.md             # Honest methodology + run status
 ```
