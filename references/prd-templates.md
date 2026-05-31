@@ -192,13 +192,15 @@ Example for solo project:
 
 **Priority:** P0
 
-**Acceptance Criteria:**
-- [ ] [Criterion 1 — testable, observable behavior]
-- [ ] [Criterion 2]
-- [ ] [Criterion 3]
+**Acceptance Criteria** (each must be specific, testable, and binary — either it passes or it fails):
+- [ ] Given [precondition], when [action], then [observable result]
+- [ ] Given [precondition], when [action], then [observable result]
+
+<!-- Bad AC (not testable): "User can log in", "System is fast", "UI is intuitive"
+     Good AC: "Given a registered user with valid credentials, when they submit the login form, then they are redirected to the dashboard within 2 seconds" -->
 
 <!-- Edge Cases and Out of Scope are optional.
-     Include them for complex stories where failure modes matter.
+     Include them for complex stories where failure modes matter (auth, payments, multi-step flows).
      Omit them for straightforward CRUD operations to keep the document lean. -->
 
 **Edge Cases** *(include only for non-trivial stories):*

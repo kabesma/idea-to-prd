@@ -243,6 +243,96 @@
         "Skill updates only 06-timeline.md — it does not regenerate all 8 files",
         "Revised timeline reflects the engineering team's estimate, not the original 4-month plan"
       ]
+    },
+    {
+      "id": 14,
+      "scenario": "multi-turn",
+      "description": "User states a vanity metric as their success definition. Skill should challenge it before accepting it.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "I want to build a recipe sharing app where home cooks can post recipes and get feedback from the community."
+        },
+        {
+          "role": "assistant",
+          "content": "[Phase 1: asks about problem and success definition]"
+        },
+        {
+          "role": "user",
+          "content": "The problem is that people have great recipes but no good platform to share them. Success would be 50,000 downloads in the first 3 months."
+        }
+      ],
+      "expected_output": "Skill explicitly challenges '50,000 downloads' as a vanity/acquisition-only metric. It asks what retained, engaged usage looks like — what does a successful user do in week 2 or month 2? It does not accept the downloads metric and write it directly into the PRD without pushback.",
+      "expectations": [
+        "Skill explicitly names '50,000 downloads' as measuring acquisition, not value",
+        "Skill asks what retained or engaged usage looks like — what a user does beyond installing the app",
+        "Skill does not proceed to alignment summary with only the downloads metric defined",
+        "Tone is constructive and educational, not dismissive"
+      ]
+    },
+    {
+      "id": 15,
+      "scenario": "multi-turn",
+      "description": "User describes a two-sided marketplace. Skill should detect the domain and automatically add marketplace-specific discovery questions.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "I want to build a platform where independent photographers can sell their presets and Lightroom filters directly to other photographers."
+        }
+      ],
+      "expected_output": "Skill detects this is a two-sided marketplace (preset creators as supply, preset buyers as demand) and includes marketplace-specific discovery questions in Phase 2: who comes first (supply or demand), the liquidity threshold, trust mechanism (reviews, refund policy), and platform fee model. These domain-specific questions must appear — not just the generic dimension checklist.",
+      "expectations": [
+        "Skill identifies this as a two-sided marketplace with creator (supply) and buyer (demand) split",
+        "Discovery questions include at least 2 of: cold-start strategy (who comes first?), liquidity threshold, trust mechanism, platform fee model",
+        "Skill does not ask only the generic checklist — marketplace-specific questions appear explicitly",
+        "01-personas.md (if eventually generated) contains both creator and buyer personas",
+        "07-risks.md (if eventually generated) addresses the cold-start problem"
+      ]
+    },
+    {
+      "id": 16,
+      "scenario": "multi-turn",
+      "description": "PRD is generated and confirmed. Skill should output a Before Engineering Kickoff checklist after generation, not just 'Your PRD is ready.'",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Let's build a simple task management tool for our 3-person startup. We just need the basics — create tasks, assign to team members, set due dates, mark done. We're a team of 2 engineers, want to ship in 6 weeks, using Next.js and Supabase."
+        },
+        {
+          "role": "assistant",
+          "content": "[Discovery and alignment summary presented]"
+        },
+        {
+          "role": "user",
+          "content": "Yes, that looks right. Go ahead and generate the PRD."
+        }
+      ],
+      "expected_output": "Skill generates the appropriate file set for this scope (likely 4–5 files, not all 8 — since this is a small, well-scoped tool). After generation, skill presents a 'Before Engineering Kickoff' checklist that names the riskiest assumptions from this specific PRD and a suggested review chain. It does not just end with a generic 'Your PRD is ready.'",
+      "expectations": [
+        "Skill generates fewer than 8 files — only files with real content for this scope",
+        "After generation, skill presents a 'Before Engineering Kickoff' section",
+        "The checklist names specific riskiest assumptions from this PRD (not generic placeholder text)",
+        "Skill offers to help design a validation plan, challenge assumptions, or go deeper on a section"
+      ]
+    },
+    {
+      "id": 17,
+      "scenario": "multi-turn",
+      "description": "User describes an ambitious scope that clearly exceeds what a small team can ship in the stated timeline. Skill should flag the mismatch before proceeding.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "We want to build a full e-commerce platform with product listings, shopping cart, payments, inventory management, order tracking, seller dashboard, buyer reviews, and an AI recommendation engine. We have 2 engineers and want to launch in 2 months."
+        }
+      ],
+      "expected_output": "Skill explicitly flags the scope/team/timeline mismatch before proceeding with full discovery. It notes that the listed features would take significantly longer than 2 months for 2 engineers and asks which features are true P0 (launch blockers) vs. which can wait. It does not silently accept the full scope and proceed to generate an alignment summary or PRD that is impossible to execute.",
+      "expectations": [
+        "Skill explicitly flags the scope/team/timeline mismatch — does not silently accept all 8 listed features as MVP",
+        "Skill notes or estimates that the listed features likely exceed a 2-month window for 2 engineers",
+        "Skill asks which features are true P0 and which can be deferred to a later phase",
+        "Skill does not generate an alignment summary that includes all listed features in the MVP",
+        "Tone is direct and constructive — honest about execution reality without dismissing the product vision"
+      ]
     }
   ]
 }

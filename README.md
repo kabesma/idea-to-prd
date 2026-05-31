@@ -10,14 +10,15 @@ Specialized for **software engineering contexts**: web apps, APIs, mobile apps, 
 
 ## How it works
 
-The skill follows 4 phases before writing a single line of PRD:
+The skill follows 5 phases before and after writing a PRD:
 
 | Phase | What happens |
 |-------|-------------|
 | **1 — Idea Intake** | Scans for already-answered context; asks only what's missing (max 2 questions) |
-| **2 — Discovery** | Dimension-driven questioning — covers users, features, tech, metrics, risks in any order; adapts based on what's already known |
-| **3 — Alignment Check** | Presents a one-page summary and waits for explicit confirmation before writing |
-| **4 — PRD Generation** | Generates 8 structured files only after alignment is confirmed |
+| **2 — Discovery** | Dimension-driven questioning — covers users, features, tech, metrics, competitive context, and validation in any order; adapts based on what's already known; detects product domain and auto-adds domain-specific questions |
+| **3 — Alignment Check** | Challenges weak metrics and over-scoped MVPs before presenting a one-page summary; waits for explicit confirmation |
+| **4 — PRD Generation** | Generates structured files scaled to scope — fewer for feature additions, all 8 for new products, more for complex products |
+| **5 — Post-PRD Critical Path** | Presents a Before Engineering Kickoff checklist: riskiest assumptions, suggested review chain, and what changes if assumptions are wrong |
 
 ## Output
 
@@ -35,12 +36,13 @@ prd/
 
 ## Evals
 
-13 test cases covering:
+17 test cases covering:
 
 - **Happy path** (evals 1–8): vague input, rich context, feature addition, internal tool, two-sided marketplace, developer CLI, onboarding redesign
-- **Adversarial** (evals 9–13): user refuses to answer questions, contradictory information across turns, mid-conversation language switch, disagreement with alignment summary, post-PRD revision from engineering feedback
+- **Adversarial — conversation dynamics** (evals 9–13): user refuses to answer questions, contradictory information across turns, mid-conversation language switch, disagreement with alignment summary, post-PRD revision from engineering feedback
+- **Adversarial — output quality** (evals 14–17): vanity metric challenge, two-sided marketplace domain detection, post-PRD critical path output, scope/team/timeline mismatch
 
-These evals measure **structural correctness** — whether the skill follows its phases, avoids anti-patterns, and produces well-formed output. They do not measure latency or token cost.
+These evals measure **structural correctness and substantive quality** — whether the skill follows its phases, challenges weak assumptions, adapts to domain context, and produces output that survives engineering review. They do not measure latency or token cost.
 
 Key behaviors validated over baseline:
 
@@ -48,10 +50,14 @@ Key behaviors validated over baseline:
 - Never re-asks questions the user already answered
 - Preserves the user's exact metric framing (does not reframe "60% drop-off" as "40% completion")
 - Enforces alignment check before writing — baseline skips this
-- Always splits output into 8 files — baseline produces a monolith
+- Scales file count to scope — feature additions use 4–5 files, new products use all 8
 - Caps questions at 3–4 per round — baseline fires 5+ at once
-- Consistently includes acceptance criteria, out-of-scope section, and FR/NFR distinction
+- Consistently includes acceptance criteria (Given/When/Then format), out-of-scope section, and FR/NFR distinction
 - Adapts templates to context: removes WCAG for CLI tools, adapts timeline structure for feature additions
+- Challenges vanity metrics before accepting them into the PRD
+- Detects product domain (marketplace, AI-native, developer tool, regulated) and auto-adds domain-specific questions
+- Flags scope/team/timeline mismatches explicitly instead of silently accepting an unshippable MVP
+- Presents a Before Engineering Kickoff checklist after PRD generation
 
 ## Installation
 
@@ -87,5 +93,5 @@ idea-to-prd/
 ├── references/
 │   └── prd-templates.md         # Templates for all 8 PRD files
 └── evals/
-    └── evals.json               # 13 test cases (8 happy path + 5 adversarial)
+    └── evals.json               # 17 test cases (8 happy path + 9 adversarial)
 ```
