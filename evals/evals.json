@@ -333,6 +333,70 @@
         "Skill does not generate an alignment summary that includes all listed features in the MVP",
         "Tone is direct and constructive — honest about execution reality without dismissing the product vision"
       ]
+    },
+    {
+      "id": 18,
+      "scenario": "multi-turn",
+      "description": "User describes a B2B Enterprise SaaS product. Skill should detect the enterprise domain and add enterprise-specific discovery questions.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "I want to build a procurement management tool for enterprise companies. Finance teams waste hours manually tracking vendor contracts, purchase orders, and approvals across email, spreadsheets, and Slack. We want to help them centralize everything and automate approval workflows."
+        }
+      ],
+      "expected_output": "Skill detects this is a B2B Enterprise SaaS product with a complex buyer dynamic. Discovery must include enterprise-specific questions: who is the economic buyer vs. the champion vs. the end user (Finance VP, procurement lead, and AP staff are not the same person); the sales motion (enterprise contract vs. self-serve); non-negotiable enterprise requirements (SSO/SAML, audit logs, procurement approval); and the sales cycle length. The skill should also probe the competitive landscape — SAP Ariba, Coupa, and others already exist in this space. Generic discovery questions alone are insufficient.",
+      "expectations": [
+        "Skill identifies this as a B2B Enterprise SaaS product, not a generic SaaS tool",
+        "Discovery explicitly distinguishes economic buyer (Finance VP / CFO) from champion (procurement lead) from end user (AP staff)",
+        "Discovery asks about non-negotiable enterprise requirements: SSO/SAML, audit trail, procurement / legal approval process",
+        "Discovery asks about the sales motion — self-serve, sales-assisted, or enterprise contract",
+        "Discovery addresses competitive landscape (SAP Ariba, Coupa, or similar) and why users would switch"
+      ]
+    },
+    {
+      "id": 19,
+      "scenario": "multi-turn",
+      "description": "User answers discovery questions thoroughly but never addresses kill criteria. Skill should surface the missing kill criteria before Phase 3.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "I want to build a budgeting app for Gen Z users. Banks feel outdated and Gen Z wants something that feels native to their lifestyle."
+        },
+        {
+          "role": "assistant",
+          "content": "[Phase 1 and 2 discovery questions about problem, target users, P0 features, tech context, competitive landscape]"
+        },
+        {
+          "role": "user",
+          "content": "Target is 18-25 year olds in the US. P0 features: account linking via Plaid, spending categorization, savings goals. Stack is React Native + Node.js. Team is 3 engineers, 6-month timeline. Competitors are Mint (dead), YNAB (too complex), and Copilot (premium). We think Gen Z wants something free and visual."
+        }
+      ],
+      "expected_output": "Skill has received substantial context covering users, features, tech stack, team, timeline, and competitive landscape — but the user never defined kill criteria. Before proceeding to the alignment summary, skill asks specifically what signal would tell them to stop or pivot. If the user skips or deflects, skill flags missing kill criteria prominently in the alignment summary header — not buried in footnotes.",
+      "expectations": [
+        "Skill notices kill criteria was not covered in discovery",
+        "Skill asks a targeted kill-criteria question before presenting the alignment summary — e.g., 'One thing before I write the summary: at what point would you declare this not worth continuing? What signal tells you to stop or pivot?'",
+        "If user skips the question, skill flags missing kill criteria visibly in the alignment summary with a ⚠️ marker",
+        "Skill does not proceed silently to Phase 3 without either getting a kill criteria answer or surfacing its absence as a high-risk assumption"
+      ]
+    },
+    {
+      "id": 20,
+      "scenario": "multi-turn",
+      "description": "User proposes a product where 'AI' is described as the main differentiator. Skill should challenge whether that is a durable competitive position.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "I want to build an AI writing assistant for marketing teams. It uses GPT-4 to help marketers write ad copy, email campaigns, and landing pages 10x faster. The AI is the main differentiator."
+        }
+      ],
+      "expected_output": "Skill detects the AI-native domain and challenges 'AI is the differentiator' as a positioning claim. The market for AI writing assistants is already crowded (Jasper, Copy.ai, HubSpot AI, etc.) and the underlying models are commodity infrastructure. Skill should ask: (1) whether AI is a core capability or a positioning claim; (2) what remains if a frontier model offers equivalent writing capability for free; (3) what the actual moat is — workflow integration, proprietary templates, brand data, or something else. Skill should also probe the competitive context before accepting the current framing.",
+      "expectations": [
+        "Skill detects this is an AI-native product and adds AI-domain-specific questions",
+        "Skill explicitly challenges 'AI is the main differentiator' as a potentially non-durable competitive position",
+        "Skill asks what remains if a frontier model offers equivalent writing capability for free",
+        "Skill asks about the actual moat — workflow integration, proprietary data, brand, or distribution",
+        "Skill addresses the crowded competitive landscape (Jasper, Copy.ai, HubSpot AI, etc.) and asks why marketing teams would choose this product instead"
+      ]
     }
   ]
 }

@@ -439,6 +439,104 @@ feature additions, small teams, or open source projects without a traditional be
 
 ---
 
+## 08-gtm.md
+
+```markdown
+# [Product Name] — Go-to-Market
+
+> **Version:** 1.0 | **Date:** [YYYY-MM-DD] | **Status:** Draft
+
+<!--
+Always generate this file for new products. GTM is frequently the most important thing
+engineering teams skip, and one of the most common reasons a technically sound product
+fails to reach users. Remove or mark N/A only sections that genuinely do not apply
+(e.g., Pricing for open source / internal tools with no commercial model).
+-->
+
+## Target Segment
+
+**Primary segment:** [Who exactly is the first customer — not "SMBs" but "engineering teams at B2B SaaS companies with 10–50 engineers who deploy weekly and use Jira"]
+
+**Beachhead rationale:**
+[Why start here — accessible, underserved, high signal-to-noise, reference customer potential, low CAC]
+
+---
+
+## Positioning
+
+> **For** [target customer]
+> **who** [has this problem or need],
+> **[Product name] is a** [product category]
+> **that** [key benefit / differentiator].
+> **Unlike** [primary alternative],
+> **we** [what makes this approach distinctly better].
+
+---
+
+## Distribution Channel
+
+| Channel | Rationale | Owner | Phase |
+|---------|-----------|-------|-------|
+| [e.g., Product-led growth / direct sales / content / community / app store / partnerships] | [Why this channel fits this product and segment] | [Name/TBD] | [Launch / Growth] |
+
+---
+
+## Acquisition Strategy
+
+**Pre-launch:**
+- [ ] [e.g., Waitlist, design partner program, beta cohort — and target count]
+
+**Launch:**
+- [ ] [e.g., Product Hunt, Hacker News Show HN, specific community announcement, press]
+
+**Post-launch growth loops:**
+- [What drives organic or viral growth — referral mechanic, SEO, word of mouth, integrations]
+
+---
+
+## Pricing & Packaging
+
+<!--
+Skip or mark N/A for internal tools, open source projects, or if pricing is explicitly TBD.
+For commercial products, always include at least a hypothesis — "free + paid tier" is a pricing model.
+-->
+
+| Tier | Price | What's included | Target persona |
+|------|-------|----------------|----------------|
+| [Free / Starter] | $0 | [Features] | [Persona] |
+| [Growth / Pro] | $X/mo | [Features] | [Persona] |
+| [Enterprise] | Custom | [Features + SLAs] | [Persona] |
+
+**Unit economics assumptions:**
+- Estimated CAC: [$/customer — channel-specific if possible]
+- Estimated LTV: [$X — based on [retention assumption] × [ACV or ARPU]]
+- Payback period: [months]
+- Key assumption: [What must be true for these economics to hold]
+
+---
+
+## Launch Milestones
+
+| Milestone | Target Date | Success Signal |
+|-----------|-------------|----------------|
+| Design partner signed | [Date] | [e.g., 3 companies using weekly] |
+| Private beta | [Date] | [e.g., 50 active users, NPS > 30] |
+| Public launch | [Date] | [e.g., 500 signups, X% day-30 retention] |
+
+---
+
+## Competitive Positioning
+
+| Competitor | Their Strength | Our Differentiation | Risk |
+|-----------|---------------|--------------------|----- |
+| [Name] | [What they do well / why users choose them today] | [Why a user chooses us instead] | High / Med / Low |
+
+**Moat analysis:**
+[What makes this defensible over 12–24 months? Network effects, switching costs, proprietary data, brand, distribution advantage?]
+```
+
+---
+
 ## 07-risks.md
 
 ```markdown
