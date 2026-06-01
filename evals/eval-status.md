@@ -70,13 +70,55 @@ To avoid the circularity that undermined the old run, execute the skill in a way
 
 These two are logged rather than patched: over-fitting the skill to two transcripts is exactly the "critical theater" failure mode this rewrite set out to remove. They are candidates to watch on the next run, not evidence of a defect.
 
-## Status — remaining evals
+## Run — 2026-06-01 — variance run, 5× each on the four reasoning evals (23–26)
+
+**Why:** the 2026-06-01 fail-capable run scored each eval once. A single transcript can't distinguish a robust behavior from a lucky sample — if the critical-reasoning behavior were fragile or sampling-dependent, one run in five would typically slip. This run re-executes the four evals that isolate the skill's core claim ("reason, don't recite") **five times each** to measure variance.
+
+**Evals chosen (the reasoning core):**
+- **23** — generative critique of a claim named nowhere in the skill (the anti-"critical theater" test)
+- **24** — factual correction of a false user premise
+- **25** — conceding to a valid, evidence-backed rebuttal
+- **26** — the shelf ("don't build this as framed") recommendation
+
+**Setup (same non-circular construction as the prior run):**
+- **Responders — 20 independent contexts** (5 per eval). Each read the three skill files (`SKILL.md`, `product-classes.md`, `prd-templates.md`) and the eval prompt only — **never** the `expectations`/`fail_conditions` — and produced the skill's response. Eval 25's prior turns were supplied as established context.
+- **Grader — 1 independent context.** Read **only the 20 transcripts plus each eval's `fail_conditions`/`expectations`** — explicitly **not** the skill files — instructed to be strict and FAIL on any `fail_condition`.
+
+**Result: 20 / 20 PASS, 0 FAIL, 0 fail_condition triggered. Variance across the 5 samples per eval: none on verdict.**
+
+| Eval | Focus | Runs | Pass | Fail | Pass rate |
+|------|-------|------|------|------|-----------|
+| 23 | Generative critique of an unlisted claim | 5 | 5 | 0 | 100% |
+| 24 | Factual correction | 5 | 5 | 0 | 100% |
+| 25 | Concede to valid rebuttal | 5 | 5 | 0 | 100% |
+| 26 | Shelf ("don't build") recommendation | 5 | 5 | 0 | 100% |
+| **Total** | | **20** | **20** | **0** | **100%** |
+
+What held across all five samples (not one transcript): every Eval-23 run independently rebuilt the arithmetic (50k × $30 × 12 = $18M) and attacked the 25% capture with real benchmarks; every Eval-24 run stated the premise was *factually wrong* ("free-to-user ≠ free-to-operate") with concrete cost drivers, not an open question; every Eval-25 run conceded explicitly ("Fair — I'll drop it") and stopped pressing; every Eval-26 run gave the "shouldn't be built as framed" read before any PRD and offered a vertical-search reframe.
+
+**Soft spots the grader flagged (not failures, no fail_condition triggered) — kept visible, deliberately not tuned away:**
+- **Eval 23, run 3:** thinnest economic teardown of the five (a penetration-benchmark gut-check without the churn/CAC reconstruction the other four did); its "proceed on $18M as a flagged risk if you insist" offer sits near the line of letting the number survive — it passed only because it labeled the figure unrealistic first.
+- **Eval 25, run 4:** suggested a monthly run-rate "leading indicator" beside the conceded headline metric. It passed because run-rate is a *revenue* indicator placed alongside the user's exact number, not a retention metric and not a reopening of the dropped objection — but the pattern sits close to the "re-asks for a retention metric" fail line and is worth watching for drift.
+- **Eval 26, all runs:** every run ends by pivoting to discovery questions / offering to proceed only on insistence. Within rubric, but the consistent pivot after a clear "don't build" verdict is a mild tension to monitor — none crossed into generating a PRD.
+
+**Caveats on this run (honest scope):** single grader context (one model judgment, not a panel); only the four reasoning evals were variance-tested. The non-market class evals (21, 27, 28), multi-module decomposition (22), and the consistency pass (29) were **not** re-run 5× here — Eval 22's prior run showed an implicit-rather-than-explicit decomposition confirmation, so the class/decomposition set is the natural next variance target.
+
+## Consolidated status — all evals
 
 | Eval | Focus | Fail-capable | Status |
 |------|-------|--------------|--------|
 | 1–8 | Discovery flow, scoping, domain detection (single-turn) | — | NOT RE-RUN against rewritten skill |
 | 9–13 | Conversation dynamics (refusal, contradiction, language switch, disagreement, post-PRD revision) | — | NOT RE-RUN |
 | 14–20 | Vanity metric, marketplace/B2B/AI detection, kill-criteria gate, scope mismatch | — | NOT RE-RUN |
+| 21 | Internal tool — market lenses OFF | ✅ | PASS — 1× (2026-06-01) |
+| 22 | Multi-module decomposition | ✅ | PASS — 1× (2026-06-01); soft spot: implicit decomposition confirmation |
+| 23 | Generative critique of an unlisted claim | ✅ | **PASS — 6× (1× + variance 5×, 2026-06-01)** |
+| 24 | Factual correction | ✅ | **PASS — 6× (1× + variance 5×, 2026-06-01)** |
+| 25 | Concede to valid rebuttal | ✅ | **PASS — 6× (1× + variance 5×, 2026-06-01)** |
+| 26 | Shelf ("don't build") recommendation | ✅ | **PASS — 6× (1× + variance 5×, 2026-06-01)** |
+| 27 | Infra / migration class | ✅ | PASS — 1× (2026-06-01) |
+| 28 | Research / experimental class | ✅ | PASS — 1× (2026-06-01) |
+| 29 | Cross-file consistency pass | ✅ | PASS — 1× (2026-06-01) |
 | 30 | State artifact usage | — | NOT RE-RUN |
 
-Evals 1–20 and 30 are cooperative/lower-risk cases; they were not re-run in this pass because the fail-capable set (21–29) is where regressions hide. They should be run before any future release that changes discovery flow. When run, record date, the independent-grader setup, and per-eval PASS/FAIL — and keep any FAILs visible rather than tuning them away. A suite that never fails is a suite that isn't testing anything.
+Evals 1–20 and 30 are cooperative/lower-risk cases; they were not re-run in these passes because the fail-capable set (21–29) is where regressions hide. The four reasoning evals (23–26) are now variance-tested at 5× and hold at 100%. The natural next variance target is the class/decomposition set (21, 22, 27, 28, 29) — Eval 22 in particular, given its implicit-confirmation soft spot. Evals 1–20 and 30 should be run before any future release that changes discovery flow. When run, record date, the independent-grader setup, and per-eval PASS/FAIL — and keep any FAILs visible rather than tuning them away. A suite that never fails is a suite that isn't testing anything.

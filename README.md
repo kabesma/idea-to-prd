@@ -84,7 +84,9 @@ Two-sided marketplace · AI-native · developer tool · B2B Enterprise SaaS · I
 - **Conversation dynamics (9–13):** refusal, contradiction, language switch, alignment disagreement, post-PRD revision
 - **Hard set (21–30):** internal/infra/research classes with market lenses off, multi-module decomposition, generative critique of an unlisted claim, factual correction, conceding to a valid rebuttal, the "don't build this" recommendation, the consistency pass, and state-artifact usage
 
-See `evals/eval-status.md` for an honest account of methodology and **why the previous "0 failures" result was discarded** (circular self-grading, no failure possible, deferred-as-pass inflation). A suite where nothing can fail proves nothing.
+**Run record (2026-06-01):** the 9 fail-capable evals (21–29) passed once each under an **independent-grader** setup (responder reads the skill files; a separate grader reads only the transcript + fail-conditions). The four reasoning evals — **23 generative critique, 24 factual correction, 25 concede-to-rebuttal, 26 shelf recommendation** — were then **variance-tested 5× each (20 runs) and held at 20/20 PASS, 0 fail-condition triggered**, with the grader's soft-spot notes kept visible rather than tuned away.
+
+See `evals/eval-status.md` for the full run record, the methodology, and **why the previous "0 failures" result was discarded** (circular self-grading, no failure possible, deferred-as-pass inflation). A suite where nothing can fail proves nothing.
 
 ## Installation
 
